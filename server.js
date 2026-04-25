@@ -1,4 +1,3 @@
-console.log("MONGO_URL =", process.env.MONGO_URL);
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -10,6 +9,10 @@ const { CloudinaryStorage } = require("multer-storage-cloudinary");
 const cloudinary = require("cloudinary").v2;
 
 dotenv.config();
+
+// DEBUG (tu peux supprimer après)
+console.log("🔥 SERVER IS STARTING");
+console.log("MONGO_URL =", process.env.MONGO_URL);
 
 const app = express();
 
@@ -43,8 +46,13 @@ const upload = multer({ storage });
 
 // DATABASE
 mongoose.connect(process.env.MONGO_URL)
-.then(() => console.log("MongoDB connecté"))
-.catch(err => console.log(err));
+  .then(() => console.log("MongoDB connecté"))
+  .catch(err => console.log(err));
+
+// ROUTE TEST (TRÈS IMPORTANT)
+app.get("/", (req, res) => {
+  res.send("COMAH API is running 🚀");
+});
 
 // SCHEMA
 const BienSchema = new mongoose.Schema({
@@ -89,11 +97,15 @@ app.post("/biens", upload.array("photos", 15), async (req, res) => {
 
 // GET BIENS
 app.get("/biens", async (req, res) => {
-  const data = await Bien.find();
-  res.json(data);
+  try {
+    const data = await Bien.find();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json(err);
+  }
 });
 
-app.listen(process.env.PORT, () => {
+// START SERVER
+app.listen(process.env.PORT || 3000, () => {
   console.log("COMAH API running");
 });
-        
